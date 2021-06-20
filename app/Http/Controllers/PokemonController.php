@@ -9,6 +9,10 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Class PokemonController
+ * @package App\Http\Controllers
+ */
 class PokemonController extends Controller
 {
 
@@ -22,6 +26,9 @@ class PokemonController extends Controller
         return $this->getData();
     }
 
+    /**
+     * @return LengthAwarePaginator
+     */
     private function getData()
     {
         $request = new Request;
@@ -96,11 +103,33 @@ class PokemonController extends Controller
             ->paginate(10);
     }
 
+    /**
+     * @param Request $request
+     * @return LengthAwarePaginator
+     */
     public function sort(Request $request)
     {
         if ($request->sort && Schema::hasColumn('pokemon', $request->sort)) {
             return DB::table('pokemon')->orderBy($request->sort, $request->dir ?? 'ASC')->paginate(10);
         }
         return DB::table('pokemon')->orderBy('id', $request->dir ?? 'ASC')->paginate(10);
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function filters()
+    {
+        return Pokemon::getFilters();
+    }
+
+    public function filterBy(Request $request)
+    {
+        if(!$request->hasAny(['type1', 'speed', 'hp'])){
+            return $this->getData();
+        }
+        return Pokemon::filter($request);
+
+
     }
 }

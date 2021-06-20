@@ -8,12 +8,25 @@
                 loading
                 loading-text="Loading... Please wait"
             ></v-data-table>
-            <div>
-                <v-btn fab class="mb-3 mt-3 mr-2" depressed small @click="addPokemon">
-                    <v-icon color="grey">fas fa-plus</v-icon>
-                </v-btn>
-                <span>Add Pokemon</span>
-            </div>
+            <v-layout row class="mr-3 mt-3 mb-3 ml-3">
+                <v-flex xs6>
+                    <div>
+                        <v-btn fab class="mb-3 mt-3 mr-2" depressed small @click="addPokemon">
+                            <v-icon color="grey">fas fa-plus</v-icon>
+                        </v-btn>
+                        <span>Add Pokemon</span>
+                    </div>
+                </v-flex>
+                <v-flex xs6>
+                    <div>
+                        <v-btn fab class="mb-3 mt-3 mr-2" depressed small v-on:click="showFilter = !showFilter">
+                            <i class="fas fa-filter"></i>
+                        </v-btn>
+                        <span>Filter</span>
+                    </div>
+                </v-flex>
+            </v-layout>
+            <Filters v-if="showFilter" @sendFilteredData="filteredData"/>
             <v-card ref="form" class="mb-5 mt-3">
                 <v-card-text>
                     <v-text-field
@@ -25,6 +38,9 @@
                     ></v-text-field>
                 </v-card-text>
             </v-card>
+            <div class="total" v-if="total">
+                <span><strong>Total:</strong> {{total}}</span>
+            </div>
             <div class="total" v-if="total === 0">
                 <h5>No result!</h5>
             </div>
@@ -120,7 +136,7 @@
                     class="my-4"
                 ></v-pagination>
                 <div class="total" v-if="total">
-                    <span>Total: {{total}}</span>
+                    <span><strong>Total:</strong> {{total}}</span>
                 </div>
             </div>
             <v-dialog
@@ -211,11 +227,14 @@
     import axios from "axios";
     import EditPokemon from "./EditPokemon";
     import AddPokemon from "./AddPokemon";
+    import Filters from "./Filters";
 
     export default {
         props: [],
         data: () => ({
             name: null,
+            showFilter: false,
+            filters: {},
             id: null,
             pokemon: null,
             pokemons: {},
@@ -240,7 +259,7 @@
             arrow: "fas fa-arrow-down"
         }),
         components: {
-            EditPokemon, AddPokemon
+            EditPokemon, AddPokemon, Filters
         },
         watch: {},
         computed: {},
@@ -249,12 +268,27 @@
             onShow() {
 
             },
+            filteredData(filters = this.filters){
+                this.filters = filters;
+                axios.post( `/api/pokemons/filters?page=${this.page}`, filters)
+                    .then((res) => {
+                        this.setData(res)
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
+            },
             next(page) {
                 this.page = page;
                 if (this.name && this.name !== '') {
                     this.search();
                 } else {
-                    this.getData();
+                    if(_.isEmpty(this.filters, true)){
+                        this.getData();
+                    }else{
+                        this.filteredData();
+                    }
+
                 }
             },
             search() {
@@ -345,7 +379,6 @@
 
             },
             deletePokemon(id) {
-                console.log(id);
                 this.dialog = true;
                 this.id = id
             },

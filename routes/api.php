@@ -20,9 +20,12 @@ Route::post('/login', [ApiAuthController::class, 'apiLogin']);
 // Protected routes
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/pokemons', [PokemonController::class, 'index']);
+
     Route::get('/pokemons/{id}', [PokemonController::class, 'show']);
     Route::get('/pokemons/search/{name}', [PokemonController::class, 'search']);
     Route::get('/pokemons/sort/{filter}', [PokemonController::class, 'sort']);
+    Route::get('/pokemons/filters/all', [PokemonController::class, 'filters']);
+    Route::post('/pokemons/filters/', [PokemonController::class, 'filterBy']);
     Route::post('/pokemons', [PokemonController::class, 'store']);
     Route::put('/pokemons/{id}', [PokemonController::class, 'update']);
     Route::delete('/pokemons/{id}', [PokemonController::class, 'destroy']);
