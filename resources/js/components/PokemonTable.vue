@@ -364,7 +364,7 @@
             onPokemonAdded(data){
                 let self = this;
                 axios.post(
-                    `/api/pokemons/`,
+                    '/api/pokemons',
                     data
                 )
                     .then(res => {

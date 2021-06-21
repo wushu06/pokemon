@@ -38,21 +38,23 @@ class Pokemon extends Model
     public static function filter(Request $request)
     {
         self::$collection = DB::table('pokemon');
-        self::setFilerClause($request, 'type1');
-        self::setFilerClause($request, 'speed');
-        self::setFilerClause($request, 'hp');
+        self::setFilerClause($request, 'type1')
+            ->setFilerClause($request, 'speed')
+            ->setFilerClause($request, 'hp');
         return self::$collection->paginate(10);
     }
 
     /**
      * @param $request
      * @param $key
+     * @return Pokemon
      */
     private static function setFilerClause($request, $key)
     {
         if ($request->$key) {
             self::$collection->whereIn($key, $request->$key);
         }
+        return new static;
     }
 
 

@@ -129,7 +129,5 @@ class PokemonController extends Controller
             return $this->getData();
         }
         return Pokemon::filter($request);
-
-
     }
 }
